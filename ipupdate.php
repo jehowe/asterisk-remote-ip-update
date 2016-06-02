@@ -40,13 +40,18 @@ if (!empty($permitkeyval)) {
         $file = '/etc/asterisk/sip.conf';
         file_put_contents($file,str_replace('permit='.$oldip[0],'permit='.$newip,file_get_contents($file)));
 
-      	// update AWS: add the new ip address to the AWS security group for sip, ssh access
+	// find and enter the AWS security group id of the asterisk aws instance into the aws-cli commands below
+	// edit the port details to meet your requirements
+	
+      	// update AWS: add the new ip address to the AWS security group for sip, rtp, ssh access
       	exec("aws ec2 authorize-security-group-ingress --group-id sg-yoursgid --protocol tcp --port 22 --cidr $newip/32");
-      	exec("aws ec2 authorize-security-group-ingress --group-id sg-yoursgid --protocol udp --port 5060-5064 --cidr $newip/32");
+      	exec("aws ec2 authorize-security-group-ingress --group-id sg-yoursgid --protocol udp --port 5060-5084 --cidr $newip/32");
+      	exec("aws ec2 authorize-security-group-ingress --group-id sg-yoursgid --protocol udp --port 10000-20000 --cidr $newip/32");
 
-	      // revoke old ip's access in AWS
+	// revoke old ip's access in AWS
       	exec("aws ec2 revoke-security-group-ingress --group-id sg-yoursgid --protocol tcp --port 22 --cidr $oldip[0]/32");
-      	exec("aws ec2 revoke-security-group-ingress --group-id sg-yoursgid --protocol udp --port 5060-5064 --cidr $oldip[0]/32");
+      	exec("aws ec2 revoke-security-group-ingress --group-id sg-yoursgid --protocol udp --port 5060-5084 --cidr $oldip[0]/32");
+        exec("aws ec2 revoke-security-group-ingress --group-id sg-yoursgid --protocol udp --port 5060-5084 --cidr $newip/32");
 
         // reload asterisk
         exec('asterisk -rx "sip reload"');
