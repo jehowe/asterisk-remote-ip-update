@@ -51,7 +51,7 @@ if (!empty($permitkeyval)) {
 	// revoke old ip's access in AWS
       	exec("aws ec2 revoke-security-group-ingress --group-id sg-yoursgid --protocol tcp --port 22 --cidr $oldip[0]/32");
       	exec("aws ec2 revoke-security-group-ingress --group-id sg-yoursgid --protocol udp --port 5060-5084 --cidr $oldip[0]/32");
-        exec("aws ec2 revoke-security-group-ingress --group-id sg-yoursgid --protocol udp --port 5060-5084 --cidr $newip/32");
+        exec("aws ec2 revoke-security-group-ingress --group-id sg-yoursgid --protocol udp --port 10000-20000 --cidr $oldip[0]/32");
 
         // reload asterisk
         exec('asterisk -rx "sip reload"');
